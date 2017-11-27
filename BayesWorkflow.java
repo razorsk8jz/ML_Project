@@ -54,6 +54,7 @@ public class BayesWorkflow extends JFrame {
     int numSamples = 0;
     int numClasses;
     int initialSample;
+    boolean done = false;
     
     //Array for min and max of feature
     double[] featureMin;
@@ -148,8 +149,11 @@ public class BayesWorkflow extends JFrame {
     private class beginAlgorithm implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e){
-            if(load != null){
+            if(load != null && !done){
                 normalizeData();
+                
+                //Completed all processing
+                done = true;
             }
         }
     }
@@ -166,6 +170,7 @@ public class BayesWorkflow extends JFrame {
         numSamples = 0;
         numFeatures = 0;
         numClasses = 0;
+        done = false;
         txtOutput.setText("");
     }
     
