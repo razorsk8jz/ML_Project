@@ -6,7 +6,7 @@ test
 nf comment 1
 nf comment 2
 
-#Source Code Update 11/27/17 by Brennan Lefler
+# Source Code Update 11/27/17 by Brennan Lefler
 We have 3 classes implemented. The main thread, the sample data structure, and the project workflow. The workflow is where most of the implementation will go. I have added comments and function prototypes for the group to guide us along, but feel free to add or remove functions as needed. 
 
 I also went ahead and implemented a function to normalize the data, which successfully converts all of the data to values between 0..1. IMPORTANT: The normalized data we will be using is in an ArrayList named "samplesNorm". Any processing of the data must be done on this list, and not any of the others. The "features" ArrayList holds the attribute names, so if you need to get those header names, call that list. 
