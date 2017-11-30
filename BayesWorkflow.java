@@ -47,8 +47,12 @@ public class BayesWorkflow extends JFrame {
     //Header of feature names
     protected ArrayList<String> features = new ArrayList<>();
     
-    //Only has number of classes
-    protected ArrayList<BayesSample> classes = new ArrayList<>();
+    //Store class set from samples to compare accuracy later
+    protected ArrayList<String> classes = new ArrayList<>();
+    
+    //List to store names of classes only. Don't confuse with the above classes list,
+    //which holds all classes to compare to later. This only holds the names of the classes
+    protected ArrayList<String> className = new ArrayList<>();
     
     int numFeatures = 0;
     int numSamples = 0;
@@ -66,8 +70,12 @@ public class BayesWorkflow extends JFrame {
         super("Relief & Bayes Classifier");
         
         JOptionPane.showMessageDialog(null,"Welcome!\nBefore importing your data file, please be sure to " +
-                "verify your data has an\nattribute header line, and that all instances are " + 
-                "seperated by commas.\n\nAny other format may result in unexpected behavior!");
+                "verify your data follows these assumptions:"
+                + "\n\n- Has an attribute header line"
+                + "\n- All instances are comma separated" 
+                + "\n- The class is in the LAST attribute column of the data"
+                + "\n\nUsing Excel can help you meet these assumptions."
+                + "\nAny other format may result in unexpected behavior!");
         buildFrame();
         buildButtons();
         buildDataOutput();
@@ -142,22 +150,21 @@ public class BayesWorkflow extends JFrame {
             reset();
         }
     }
-    
     //Begin the algorithm. Do Relief alg first, output results via txtOutput.append(" ").
     //Next, run Bayes Classifier. Might be easier to put each step of Bayes and Relief into
     //specialized functions. Then, just call them in order. 
-    private class beginAlgorithm implements ActionListener{
+    private class beginAlgorithm implements ActionListener {
+
         @Override
-        public void actionPerformed(ActionEvent e){
-            if(load != null && !done){
+        public void actionPerformed(ActionEvent e) {
+            if (load != null && !done) {
                 normalizeData();
-                
+
                 //Completed all processing
                 done = true;
             }
         }
     }
-    
     //Reset method for startReset (to make available to other windows)
     //Clear all data for next file set
     protected void reset() {
@@ -173,7 +180,6 @@ public class BayesWorkflow extends JFrame {
         done = false;
         txtOutput.setText("");
     }
-    
     //Read in data from file that was imported
     private void readData() {
         try {
@@ -187,7 +193,7 @@ public class BayesWorkflow extends JFrame {
                 items = line.split(",");
                 samples.add(new BayesSample());
                 for (int i = 0; i < items.length; i++) {
-                    if (index == 0){
+                    if (index == 0) {
                         features.add(items[i]);
                         numFeatures = items.length - 1;
                     }
@@ -196,12 +202,21 @@ public class BayesWorkflow extends JFrame {
                         if (isDouble(items[i]) || isInteger(items[i])) {
                             samples.get(index).addFeatures(Double.parseDouble(items[i]));
                         }
+                        else if(i>1 && i % numFeatures == 0){
+                            if(!classes.contains(items[i])){
+                                //Add names of classes
+                                className.add(items[i]);
+                            }
+                            //Add ALL classifications
+                            classes.add(items[i]);
+                        }
                     }
                 }
                 index++;
             }
             numSamples = index - 1;
             fileScan.close();
+            System.out.println(className);
         } catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(null, "There was a problem loading the file.");
         }
@@ -302,6 +317,11 @@ public class BayesWorkflow extends JFrame {
     
     //Calculate probability of sample given class * class probability, then assign sample to class
     protected void totalProbabilities(){
+        
+    }
+    
+    //Calculate confusion matrix at the end
+    protected void confusionMatrix(){
         
     }
 }
