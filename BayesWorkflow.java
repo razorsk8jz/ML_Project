@@ -139,6 +139,12 @@ public class BayesWorkflow extends JFrame {
             if (fileOpen == JFileChooser.APPROVE_OPTION) {
                 lblFile.setText("File: " + load.getSelectedFile().getName());
                 readData();
+                txtOutput.append("----------------------------\nPre-Processing:\n----------------------------");
+                txtOutput.append("\nNumber of Samples: " + (samples.size()-1));
+                txtOutput.append("\n\nThere were " + className.size() + " classes discovered:");
+                for(int i=0; i<className.size(); i++){
+                    txtOutput.append("\nClass " + i + ": " + className.get(i));
+                }
             }
         }
     }
@@ -174,6 +180,7 @@ public class BayesWorkflow extends JFrame {
         samples.clear();
         samplesNorm.clear();
         classes.clear();
+        className.clear();
         numSamples = 0;
         numFeatures = 0;
         numClasses = 0;
@@ -216,7 +223,6 @@ public class BayesWorkflow extends JFrame {
             }
             numSamples = index - 1;
             fileScan.close();
-            System.out.println(className);
         } catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(null, "There was a problem loading the file.");
         }
