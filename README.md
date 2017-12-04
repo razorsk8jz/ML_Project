@@ -16,3 +16,6 @@ flower2 = 1
 flower3 = 2
 
 So, we have 3 classes, and when we assign a sample to a class, it will be much easier to assign it to '0', rather than comparing to a string ('flower1'). As usual, let me know if you guys need clarification on anything. Feel free to try implementing some of the functions soon. I will continue working on the Bayes portion.
+
+# Code Update 12/4/17 (Brennan Lefler)
+Implemented functions that split data with even distribution, 70/30 training/test data. Also implemented Bayes function to get class probabilities. It's starting to get quite convoluted, so I apologize. Training samples and classes are in lists named 'trainingSamples', 'trainingClasses'. Same for test samples and classes. ('testSamples', etc.) We need to start working on the Relief algorithm as well.
