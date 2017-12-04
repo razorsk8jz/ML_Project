@@ -64,6 +64,19 @@ public class BayesWorkflow extends JFrame {
     double[] featureMin;
     double[] featureMax;
     
+    //Arrays to hold probabilities
+    double[] classProb;
+    double[] sampleProb;
+    
+    double percentUsed = 0;
+    //Holds split data for training
+    protected ArrayList<BayesSample> trainingSamples = new ArrayList<>();
+    protected ArrayList<String> trainingClasses = new ArrayList<>();
+    
+    //Holds split data for testing
+    protected ArrayList<BayesSample> testSamples = new ArrayList<>();
+    protected ArrayList<String> testClasses = new ArrayList<>();
+    
     DecimalFormat dec = new DecimalFormat("0.000");
     
     BayesWorkflow() {
@@ -164,7 +177,10 @@ public class BayesWorkflow extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (load != null && !done) {
+                txtOutput.append("\n\n----------------------------\nResults:\n----------------------------");
                 normalizeData();
+                splitData();
+                classProbabilities();
 
                 //Completed all processing
                 done = true;
@@ -181,6 +197,11 @@ public class BayesWorkflow extends JFrame {
         samplesNorm.clear();
         classes.clear();
         className.clear();
+        trainingSamples.clear();
+        trainingClasses.clear();
+        testSamples.clear();
+        testClasses.clear();
+        classProb = null;
         numSamples = 0;
         numFeatures = 0;
         numClasses = 0;
@@ -248,8 +269,6 @@ public class BayesWorkflow extends JFrame {
     
     /*
     Group project collaboration for RELIEF:
-    - Function to normalize data. Must be done FIRST. Norm = (x-min)/(max-min)
-    - Function to randomly select initial sample
     - Function to calculate distances between samples, store nearest sample in same class (near hit), store
             nearest sample from different class (near miss)
     - Function to calculate weights of each sample. Weight = W - diff(x,near hit)^2 + diff(x,near miss)^2
@@ -306,14 +325,50 @@ public class BayesWorkflow extends JFrame {
     
     /*
     Group project collaboration for BAYES:
-    - Function to calculate probabilities of all recognized classes
     - Function to calculate probability of each sample and each class
     - Function to multiply P(C) * P(x|C), and assign sample to class with highest probability
     */
     
+    //Split data for training and testing
+    protected void splitData(){
+        Random r = new Random();
+        int i;
+        percentUsed = Math.round(samplesNorm.size() * .7);   //trainingSamples list
+        //Assign to training set
+        while (trainingSamples.size() < percentUsed) {
+            i = r.nextInt(samplesNorm.size());
+                if (!trainingSamples.contains(samplesNorm.get(i))) {
+                    trainingSamples.add(samplesNorm.get(i));
+                    trainingClasses.add(classes.get(i));
+                }
+        }
+        //If not in training set, put in test set
+        for(int j=0; j<samplesNorm.size(); j++){
+            if(!trainingSamples.contains(samplesNorm.get(j))){
+                testSamples.add(samplesNorm.get(j));
+                testClasses.add(classes.get(j));
+            }
+        }
+    }
+
     //Calculate probabilities of all classes (number of C, over the total number of samples)
     protected void classProbabilities(){
+        classProb = new double[className.size()];
         
+        for(int i=0; i<percentUsed; i++){
+            for(int j=0; j<className.size(); j++){
+                if (trainingClasses.get(i).equals(className.get(j))){
+                    classProb[j]++;
+                }
+            }
+        }
+        txtOutput.append("\n\n(70% of data used as training, 30% as testing.)");
+        txtOutput.append("\nProbability of Class:");
+        for(int i=0; i<className.size(); i++){
+            classProb[i] /= percentUsed;
+            classProb[i] = Double.parseDouble(dec.format(classProb[i]));
+            txtOutput.append("\nClass " + i + ": " + classProb[i]);
+        }
     }
     
     //Get probability of sample given class
