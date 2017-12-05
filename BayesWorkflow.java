@@ -54,21 +54,6 @@ public class BayesWorkflow extends JFrame {
     //which holds all classes to compare to later. This only holds the names of the classes
     protected ArrayList<String> className = new ArrayList<>();
     
-    int numFeatures = 0;
-    int numSamples = 0;
-    int numClasses;
-    int initialSample;
-    boolean done = false;
-    
-    //Array for min and max of feature
-    double[] featureMin;
-    double[] featureMax;
-    
-    //Arrays to hold probabilities
-    double[] classProb;
-    double[] sampleProb;
-    
-    double percentUsed = 0;
     //Holds split data for training
     protected ArrayList<BayesSample> trainingSamples = new ArrayList<>();
     protected ArrayList<String> trainingClasses = new ArrayList<>();
@@ -76,6 +61,24 @@ public class BayesWorkflow extends JFrame {
     //Holds split data for testing
     protected ArrayList<BayesSample> testSamples = new ArrayList<>();
     protected ArrayList<String> testClasses = new ArrayList<>();
+    
+    protected double percentUsed = 0;
+    
+    protected int numFeatures = 0;
+    protected int numSamples = 0;
+    protected int numClasses;
+    protected int initialSample;
+    protected boolean done = false;
+    
+    //Array for min and max of feature
+    protected double[] featureMin;
+    protected double[] featureMax;
+    
+    //Arrays to hold probabilities, and number of occurrences
+    protected double[] classProb;
+    protected double[] sampleProb;
+    protected double[] occurrences;
+    
     
     DecimalFormat dec = new DecimalFormat("0.000");
     
@@ -158,6 +161,10 @@ public class BayesWorkflow extends JFrame {
                 for(int i=0; i<className.size(); i++){
                     txtOutput.append("\nClass " + i + ": " + className.get(i));
                 }
+                txtOutput.append("\n\nThere were " + numFeatures + " features discovered:");
+                for(int i=0; i<features.size()-1; i++){
+                    txtOutput.append("\nFeature " + i + ": " + features.get(i));
+                }
             }
         }
     }
@@ -181,6 +188,7 @@ public class BayesWorkflow extends JFrame {
                 normalizeData();
                 splitData();
                 classProbabilities();
+                sampleProbabilities();
 
                 //Completed all processing
                 done = true;
@@ -349,6 +357,9 @@ public class BayesWorkflow extends JFrame {
                 testClasses.add(classes.get(j));
             }
         }
+        txtOutput.append("\nData Split:");
+        txtOutput.append("\nTraining data contains " + trainingSamples.size() + " instances.");
+        txtOutput.append("\nTesting data contains " + testSamples.size() + " instances.");
     }
 
     //Calculate probabilities of all classes (number of C, over the total number of samples)
@@ -373,8 +384,24 @@ public class BayesWorkflow extends JFrame {
     
     //Get probability of sample given class
     protected void sampleProbabilities(){
-        
-    }
+        //This mess will hopefully calculate probability of test samples, against the training data
+        sampleProb = new double[testSamples.size()];
+        occurrences = new double[numFeatures];
+        //This is just ridiculous...
+        for(int w=0; w<className.size(); w++){
+            for(int x=0; x<testSamples.size(); x++){
+                for(int y=0; y<trainingSamples.size(); y++){
+                    for(int z=0; z<numFeatures; z++){
+                        if(testSamples.get(x).getFeatures().get(z).equals
+                                (trainingSamples.get(y).getFeatures().get(z)) && 
+                                trainingClasses.get(y).equals(classes.get(w))){
+                            sampleProb[x]++;//???
+                        }
+                    }
+                }
+            }
+        }    
+}
     
     //Calculate probability of sample given class * class probability, then assign sample to class
     protected void totalProbabilities(){
