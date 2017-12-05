@@ -189,7 +189,7 @@ public class BayesWorkflow extends JFrame {
                 splitData();
                 classProbabilities();
                 sampleProbabilities();
-
+                calcDistances();
                 //Completed all processing
                 done = true;
             }
@@ -321,9 +321,26 @@ public class BayesWorkflow extends JFrame {
         initialSample = r.nextInt(numSamples); //sample index
     }
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     //Calculate sample distances and store the nearest hit and miss for each round until done
     protected void calcDistances(){
-        
+        for(int i = 0; i < samplesNorm.size(); i++) {
+            for(int j = 0; j < samplesNorm.get(1).getFeatures().size(); j++) {
+                System.out.print(samplesNorm.get(i).getFeatures().get(j) + "\n");
+            }
+            System.out.print("\n");
+        }
     }
     
     //Calculate weights for each samples features. At the end, output which feature is least weighted.
