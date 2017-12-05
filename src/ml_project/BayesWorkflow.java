@@ -4,7 +4,7 @@
  - Button to reset data
  - Button to begin algorithm
  */
-package bayesclassifier;
+package ml_project;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;

@@ -1,7 +1,7 @@
 /*
 Each sample is an object with dynamic size for # of features
  */
-package bayesclassifier;
+package ml_project;
 
 import java.util.ArrayList;
 
