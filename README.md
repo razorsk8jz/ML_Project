@@ -19,3 +19,6 @@ So, we have 3 classes, and when we assign a sample to a class, it will be much e
 
 # Code Update 12/4/17 (Brennan Lefler)
 Implemented functions that split data with even distribution, 70/30 training/test data. Also implemented Bayes function to get class probabilities. It's starting to get quite convoluted, so I apologize. Training samples and classes are in lists named 'trainingSamples', 'trainingClasses'. Same for test samples and classes. ('testSamples', etc.) We need to start working on the Relief algorithm as well.
+
+# Code Update 12/5/17 (Brennan Lefler)
+A few more changes added. Currently attempting to implement function to calculate sample probabilities. Also added more output text for the user to see some basic information regarding the included features.
