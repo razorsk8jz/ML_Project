@@ -1,7 +1,7 @@
 # Source Code Update 11/27/17 (Brennan Lefler)
 We have 3 classes implemented. The main thread, the sample data structure, and the project workflow. The workflow is where most of the implementation will go. I have added comments and function prototypes for the group to guide us along, but feel free to add or remove functions as needed. 
 
-I also went ahead and implemented a function to normalize the data, which successfully converts all of the data to values between 0..1. IMPORTANT: The normalized data we will be using is in an ArrayList named "samplesNorm". Any processing of the data must be done on this list, and not any of the others. The "features" ArrayList holds the attribute names, so if you need to get those header names, call that list. 
+I also went ahead and implemented a function to normalize the data, which successfully converts all of the data to values between 0..1. The "features" ArrayList holds the attribute names, so if you need to get those header names, call that list. 
 
 Unless absolutely necessary, please do not make any changes to any of the functions that import the data or read the data. Everything works as needed to bring in all of the samples and there corresponding features. I know there will be questions about the code as we move forward, so feel free to ask me about it.
 
@@ -15,10 +15,11 @@ flower1 = 0
 flower2 = 1
 flower3 = 2
 
-So, we have 3 classes, and when we assign a sample to a class, it will be much easier to assign it to '0', rather than comparing to a string ('flower1'). As usual, let me know if you guys need clarification on anything. Feel free to try implementing some of the functions soon. I will continue working on the Bayes portion.
-
 # Code Update 12/4/17 (Brennan Lefler)
 Implemented functions that split data with even distribution, 70/30 training/test data. Also implemented Bayes function to get class probabilities. It's starting to get quite convoluted, so I apologize. Training samples and classes are in lists named 'trainingSamples', 'trainingClasses'. Same for test samples and classes. ('testSamples', etc.) We need to start working on the Relief algorithm as well.
 
 # Code Update 12/5/17 (Brennan Lefler)
 A few more changes added. Currently attempting to implement function to calculate sample probabilities. Also added more output text for the user to see some basic information regarding the included features.
+
+# Code Update 12/6/17 (Brennan Lefler)
+Fixed an issue where numerical class names didn't load properly. Added a popup window to catch any exception, so program won't nasty crash for user. Also made some changes above in the readme, to reflect things that don't apply anymore.
