@@ -5,7 +5,7 @@ Brennan Lefler, Barry Glass, Alex Hughes, Nicholas Fragoman, & Justin Mitchell
 The program loads files of any sample length and feature length and will use Relief algorithm
 to determine the weakest feature. Then, it will classify each sample using the Bayes Classifier algorithm.
  */
-package ml_project;
+package bayesclassifier;
 
 public class BayesClassifier {
 

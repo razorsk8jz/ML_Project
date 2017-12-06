@@ -4,7 +4,7 @@
  - Button to reset data
  - Button to begin algorithm
  */
-package ml_project;
+package bayesclassifier;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -184,6 +184,7 @@ public class BayesWorkflow extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (load != null && !done) {
+                try{
                 txtOutput.append("\n\n----------------------------\nResults:\n----------------------------");
                 normalizeData();
                 splitData();
@@ -192,6 +193,12 @@ public class BayesWorkflow extends JFrame {
                 calcDistances();
                 //Completed all processing
                 done = true;
+                }
+                catch(Exception ex){
+                    JOptionPane.showMessageDialog(null,"There was an error while processing data."
+                    + "\nDid you verify your data set follows the assumptions?\n" + ex);
+                    reset();
+                }
             }
         }
     }
@@ -234,11 +241,11 @@ public class BayesWorkflow extends JFrame {
                         numFeatures = items.length - 1;
                     }
                     if (index > 0) {
-                        //Ignore string data for class info. Make sure file format matches!
-                        if (isDouble(items[i]) || isInteger(items[i])) {
+                        //Mae sure features are numerical. Final is class, can be string/numerical
+                        if ((isDouble(items[i]) || isInteger(items[i])) && i<numFeatures) {
                             samples.get(index).addFeatures(Double.parseDouble(items[i]));
                         }
-                        else if(i>1 && i % numFeatures == 0){
+                        if(i == numFeatures){
                             if(!classes.contains(items[i])){
                                 //Add names of classes
                                 className.add(items[i]);
@@ -334,6 +341,7 @@ public class BayesWorkflow extends JFrame {
     
     
     //Calculate sample distances and store the nearest hit and miss for each round until done
+    //use full data set for relief
     protected void calcDistances(){
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = 0; j < samplesNorm.get(1).getFeatures().size(); j++) {
