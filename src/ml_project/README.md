@@ -23,3 +23,5 @@ A few more changes added. Currently attempting to implement function to calculat
 
 # Code Update 12/6/17 (Brennan Lefler)
 Fixed an issue where numerical class names didn't load properly. Added a popup window to catch any exception, so program won't nasty crash for user. Also made some changes above in the readme, to reflect things that don't apply anymore.
+
+I got the sample probabilities function working, it *seems* to be correct. Trying to assign to a class isn't working right now, but the framework is there for it.
