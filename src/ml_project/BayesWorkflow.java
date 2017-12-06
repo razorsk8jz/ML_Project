@@ -78,6 +78,8 @@ public class BayesWorkflow extends JFrame {
     protected double[] classProb;
     protected double[] sampleProb;
     protected double[] occurrences;
+    protected int[] numberInClass;
+    protected int[][] numberSampleInClass;
     
     
     DecimalFormat dec = new DecimalFormat("0.000");
@@ -190,6 +192,7 @@ public class BayesWorkflow extends JFrame {
                 splitData();
                 classProbabilities();
                 sampleProbabilities();
+                totalProbabilities();
                 calcDistances();
                 //Completed all processing
                 done = true;
@@ -328,26 +331,14 @@ public class BayesWorkflow extends JFrame {
         initialSample = r.nextInt(numSamples); //sample index
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     //Calculate sample distances and store the nearest hit and miss for each round until done
     //use full data set for relief
     protected void calcDistances(){
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = 0; j < samplesNorm.get(1).getFeatures().size(); j++) {
-                System.out.print(samplesNorm.get(i).getFeatures().get(j) + "\n");
+                //System.out.print(samplesNorm.get(i).getFeatures().get(j) + "\n");
             }
-            System.out.print("\n");
+            //System.out.print("\n");
         }
     }
     
@@ -390,11 +381,13 @@ public class BayesWorkflow extends JFrame {
     //Calculate probabilities of all classes (number of C, over the total number of samples)
     protected void classProbabilities(){
         classProb = new double[className.size()];
+        numberInClass = new int[className.size()];
         
         for(int i=0; i<percentUsed; i++){
             for(int j=0; j<className.size(); j++){
                 if (trainingClasses.get(i).equals(className.get(j))){
                     classProb[j]++;
+                    numberInClass[j]++;
                 }
             }
         }
@@ -411,26 +404,47 @@ public class BayesWorkflow extends JFrame {
     protected void sampleProbabilities(){
         //This mess will hopefully calculate probability of test samples, against the training data
         sampleProb = new double[testSamples.size()];
-        occurrences = new double[numFeatures];
+        numberSampleInClass = new int[className.size()][testSamples.size()];
         //This is just ridiculous...
-        for(int w=0; w<className.size(); w++){
-            for(int x=0; x<testSamples.size(); x++){
-                for(int y=0; y<trainingSamples.size(); y++){
-                    for(int z=0; z<numFeatures; z++){
-                        if(testSamples.get(x).getFeatures().get(z).equals
-                                (trainingSamples.get(y).getFeatures().get(z)) && 
-                                trainingClasses.get(y).equals(classes.get(w))){
-                            sampleProb[x]++;//???
+        for (int w = 0; w < className.size(); w++) {
+            for (int x = 0; x < testSamples.size(); x++) {
+                for (int y = 0; y < trainingSamples.size(); y++) {
+                    for (int z = 0; z < numFeatures; z++) {
+                        if (testSamples.get(x).getFeatures().get(z).equals(trainingSamples.get(y).getFeatures().get(z))
+                                && trainingClasses.get(y).equals(classes.get(w))) {
+                            numberSampleInClass[w][x]++;
                         }
                     }
                 }
             }
-        }    
-}
-    
+        }
+        double[][] probs = new double[className.size()][testSamples.size()];
+        for(int i=0;i<className.size();i++){
+            for(int j=0; j<testSamples.size()-1; j++){
+                probs[i][j] = (numberSampleInClass[i][j] * numberSampleInClass[i][j+1]) /
+                        (Math.pow(numberInClass[i], numFeatures));
+                sampleProb[j] = probs[i][j];
+            }
+        }
+    }
     //Calculate probability of sample given class * class probability, then assign sample to class
-    protected void totalProbabilities(){
-        
+    protected void totalProbabilities() {
+        double minVal;
+        int[] counter = new int[className.size()];
+        for(int i=0; i<testSamples.size(); i++){
+            for(int j=0; j<className.size(); j++){
+                minVal = sampleProb[i] * classProb[j];
+                if((sampleProb[i] * classProb[j]) < minVal){
+                    testSamples.get(i).assignToClass(j);
+                    counter[j]++;
+                }
+            }
+        }
+        //Display how many samples were assigned to each of the classes
+        System.out.println("\n");
+        for(int i=0; i<counter.length; i++){
+            txtOutput.append("\n" + counter[i] + " samples were assigned to class " + i + ".");
+        }
     }
     
     //Calculate confusion matrix at the end

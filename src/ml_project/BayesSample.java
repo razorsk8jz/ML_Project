@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class BayesSample {
     private ArrayList<Double> features = new ArrayList<>();
     
-    int classType = 0;
+    int classType = -1;
     
     BayesSample(){
         
