@@ -4,7 +4,7 @@
  - Button to reset data
  - Button to begin algorithm
  */
-package bayesclassifier;
+package ml_project;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -337,6 +337,12 @@ public class BayesWorkflow extends JFrame {
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = 0; j < samplesNorm.get(1).getFeatures().size(); j++) {
                 //System.out.print(samplesNorm.get(i).getFeatures().get(j) + "\n");
+//                Point result = new Point(); 
+//                result.ycoord = Math.abs (ycoord - other.ycoord);
+//                result.xcoord = Math.abs (xcoord- other.xcoord);    
+//                result.distance = Math.sqrt((result.ycoord)*(result.ycoord) +(result.xcoord)*(result.xcoord));
+//                System.out.println(result);
+//                return result.distance; 
             }
             //System.out.print("\n");
         }
