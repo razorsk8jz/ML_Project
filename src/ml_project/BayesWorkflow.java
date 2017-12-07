@@ -4,7 +4,7 @@
  - Button to reset data
  - Button to begin algorithm
  */
-package ml_project;
+package bayesclassifier;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -194,6 +194,7 @@ public class BayesWorkflow extends JFrame {
                 sampleProbabilities();
                 totalProbabilities();
                 calcDistances();
+                
                 //Completed all processing
                 done = true;
                 }
@@ -337,12 +338,6 @@ public class BayesWorkflow extends JFrame {
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = 0; j < samplesNorm.get(1).getFeatures().size(); j++) {
                 //System.out.print(samplesNorm.get(i).getFeatures().get(j) + "\n");
-//                Point result = new Point(); 
-//                result.ycoord = Math.abs (ycoord - other.ycoord);
-//                result.xcoord = Math.abs (xcoord- other.xcoord);    
-//                result.distance = Math.sqrt((result.ycoord)*(result.ycoord) +(result.xcoord)*(result.xcoord));
-//                System.out.println(result);
-//                return result.distance; 
             }
             //System.out.print("\n");
         }
@@ -429,31 +424,38 @@ public class BayesWorkflow extends JFrame {
             for(int j=0; j<testSamples.size()-1; j++){
                 probs[i][j] = (numberSampleInClass[i][j] * numberSampleInClass[i][j+1]) /
                         (Math.pow(numberInClass[i], numFeatures));
-                sampleProb[j] = probs[i][j];
+                //Because size is limited, allow the full number of probabilities per class to persist.
+                if(j == testSamples.size()){
+                    sampleProb[j] = probs[i][j+1];
+                }
+                else{
+                    sampleProb[j] = probs[i][j];
+                }
             }
         }
     }
     //Calculate probability of sample given class * class probability, then assign sample to class
     protected void totalProbabilities() {
-        double minVal;
         int[] counter = new int[className.size()];
         for(int i=0; i<testSamples.size(); i++){
+            System.out.println("\nSample " + i + " BEFORE assignment: " + testSamples.get(i).getClassType());
             for(int j=0; j<className.size(); j++){
-                minVal = sampleProb[i] * classProb[j];
-                if((sampleProb[i] * classProb[j]) < minVal){
+                if((sampleProb[i] * classProb[j]) < (sampleProb[i] * classProb[j])){
                     testSamples.get(i).assignToClass(j);
                     counter[j]++;
                 }
             }
+            System.out.println("\nSample " + i + " AFTER assignment: " + testSamples.get(i).getClassType());
         }
         //Display how many samples were assigned to each of the classes
-        System.out.println("\n");
+        txtOutput.append("\n");
         for(int i=0; i<counter.length; i++){
             txtOutput.append("\n" + counter[i] + " samples were assigned to class " + i + ".");
         }
     }
     
-    //Calculate confusion matrix at the end
+    //Calculate confusion matrix at the end (compares how accurate assignments were compared to what
+    //they should have been. We want low mis-assignments.
     protected void confusionMatrix(){
         
     }
