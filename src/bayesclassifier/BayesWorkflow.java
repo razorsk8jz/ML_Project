@@ -62,6 +62,15 @@ public class BayesWorkflow extends JFrame {
     protected ArrayList<BayesSample> testSamples = new ArrayList<>();
     protected ArrayList<String> testClasses = new ArrayList<>();
     
+    
+    
+    // Used to hold the euclidean distances
+    protected ArrayList<Double> distanceArray = new ArrayList<>();
+    protected double euclidDist = 0;
+    protected double finalDist = 0;
+    
+    
+    
     protected double percentUsed = 0;
     
     protected int numFeatures = 0;
@@ -220,10 +229,13 @@ public class BayesWorkflow extends JFrame {
         trainingClasses.clear();
         testSamples.clear();
         testClasses.clear();
+        distanceArray.clear();
         classProb = null;
         numSamples = 0;
         numFeatures = 0;
         numClasses = 0;
+        euclidDist = 0;
+        finalDist = 0;
         done = false;
         txtOutput.setText("");
     }
@@ -334,18 +346,37 @@ public class BayesWorkflow extends JFrame {
     
     //Calculate sample distances and store the nearest hit and miss for each round until done
     //use full data set for relief
+    //d(p,q) = sqrt(pow(p1-q1, 2) + pow(p2-q2, 2) + pow(pi-qi, 2) + pow(pn-qn, 2))
     protected void calcDistances(){
+        int count = 1;
         for(int i = 0; i < samplesNorm.size(); i++) {
-            for(int j = 0; j < samplesNorm.get(1).getFeatures().size(); j++) {
-                //System.out.print(samplesNorm.get(i).getFeatures().get(j) + "\n");
-//                Point result = new Point(); 
-//                result.ycoord = Math.abs (ycoord - other.ycoord);
-//                result.xcoord = Math.abs (xcoord- other.xcoord);    
-//                result.distance = Math.sqrt((result.ycoord)*(result.ycoord) +(result.xcoord)*(result.xcoord));
-//                System.out.println(result);
-//                return result.distance; 
+            for(int j = i + 1; j < samplesNorm.size(); j++) {
+                for(int k = 0; k < samplesNorm.get(1).getFeatures().size(); k++) {
+                    double sampleOne = samplesNorm.get(i).getFeatures().get(k);
+                    double sampleTwo = samplesNorm.get(j).getFeatures().get(k);
+                    euclidDist += Math.pow(sampleOne - sampleTwo, 2);
+                }
+                finalDist = Math.sqrt(euclidDist);
+                distanceArray.add(finalDist);
+                euclidDist = 0;
             }
-            //System.out.print("\n");
+            // find Min value in dist array
+            double min = 0;
+            for(int l = 0; l < distanceArray.size(); l ++) {
+                if(l == 0){
+                    min = distanceArray.get(l);
+                } else {
+                    if (distanceArray.get(l) < min) {
+                        min = distanceArray.get(l);
+                    }
+                }
+            }
+            
+            System.out.print(distanceArray + "distanceArray dist\n");
+            System.out.print(min + "minimum dist\n");
+            System.out.print(distanceArray.size() + "size of array\n");
+            distanceArray.clear();
+//            System.out.print(finalDist + "final dist\n");
         }
     }
     
@@ -444,14 +475,14 @@ public class BayesWorkflow extends JFrame {
     protected void totalProbabilities() {
         int[] counter = new int[className.size()];
         for(int i=0; i<testSamples.size(); i++){
-            System.out.println("\nSample " + i + " BEFORE assignment: " + testSamples.get(i).getClassType());
+//            System.out.println("\nSample " + i + " BEFORE assignment: " + testSamples.get(i).getClassType());
             for(int j=0; j<className.size(); j++){
                 if((sampleProb[i] * classProb[j]) < (sampleProb[i] * classProb[j])){
                     testSamples.get(i).assignToClass(j);
                     counter[j]++;
                 }
             }
-            System.out.println("\nSample " + i + " AFTER assignment: " + testSamples.get(i).getClassType());
+//            System.out.println("\nSample " + i + " AFTER assignment: " + testSamples.get(i).getClassType());
         }
         //Display how many samples were assigned to each of the classes
         txtOutput.append("\n");
