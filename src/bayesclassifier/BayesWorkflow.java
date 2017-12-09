@@ -352,15 +352,19 @@ public class BayesWorkflow extends JFrame {
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = i + 1; j < samplesNorm.size(); j++) {
                 for(int k = 0; k < samplesNorm.get(1).getFeatures().size(); k++) {
+                    // Sample One SHOULD be each feature from the first sample as it loops through the features k
+                    // Sample Two SHOULD be each feature from the second sample as it loops through the features k
                     double sampleOne = samplesNorm.get(i).getFeatures().get(k);
                     double sampleTwo = samplesNorm.get(j).getFeatures().get(k);
+                    // This is what would be under the square root: pow(p1-q1, 2) + pow(p2-q2, 2) + pow(pi-qi, 2) + pow(pn-qn, 2)
                     euclidDist += Math.pow(sampleOne - sampleTwo, 2);
                 }
+                // final evaluation of the function and add it to an array, then reset euclid dist for next sample comarison
                 finalDist = Math.sqrt(euclidDist);
                 distanceArray.add(finalDist);
                 euclidDist = 0;
             }
-            // find Min value in dist array
+            // find Min value in distancearray
             double min = 0;
             for(int l = 0; l < distanceArray.size(); l ++) {
                 if(l == 0){
@@ -376,7 +380,6 @@ public class BayesWorkflow extends JFrame {
             System.out.print(min + "minimum dist\n");
             System.out.print(distanceArray.size() + "size of array\n");
             distanceArray.clear();
-//            System.out.print(finalDist + "final dist\n");
         }
     }
     
