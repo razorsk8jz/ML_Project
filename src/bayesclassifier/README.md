@@ -25,3 +25,6 @@ A few more changes added. Currently attempting to implement function to calculat
 Fixed an issue where numerical class names didn't load properly. Added a popup window to catch any exception, so program won't nasty crash for user. Also made some changes above in the readme, to reflect things that don't apply anymore.
 
 I got the sample probabilities function working, it *seems* to be correct. Trying to assign to a class isn't working right now, but the framework is there for it.
+
+# Code Update 12/11/17 (Brennan Lefler)
+Group collab yesterday nearly finished Relief alg. I still can't fix why the weights are all the same, but at the minimum, the program handles if the weights are the same by outputting that all features were weighted the same, so no feature can be disregarded. I am woking on finishing Bayes stuff now.
