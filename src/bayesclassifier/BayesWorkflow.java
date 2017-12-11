@@ -350,10 +350,9 @@ public class BayesWorkflow extends JFrame {
         weightsHit = new double[numFeatures];
         weightsMiss = new double[numFeatures];
         weightsTotal = new double[numFeatures];
-        int index = 0;
+        int count = 0;
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = i + 1; j < samplesNorm.size(); j++) {
-                index = j;
                 for(int k = 0; k < numFeatures; k++) {
                     // Sample One SHOULD be each feature from the first sample as it loops through the features k
                     // Sample Two SHOULD be each feature from the second sample as it loops through the features k
@@ -371,27 +370,26 @@ public class BayesWorkflow extends JFrame {
             //Calc nearHit or nearMiss
             nearHit = 0;
             nearMiss = 0;
-            min = 0;
+            min = Double.MAX_VALUE;
             for (int l = 0; l < distanceArray.size(); l++) {
-                if (l == 0) {
-                    min = distanceArray.get(l);
-                }
                 for (int m = 0; m < className.size(); m++) {
-                    if (classes.get(l).equals(classes.get(m))) {
+                    if (classes.get(l+count).equals(classes.get(m))) {
                         if (distanceArray.get(l) < min){
-                            nearHit = l;
+                            nearHit = l+count;
+                            min = distanceArray.get(l);
                         }
                     }
                     else{
                         if (distanceArray.get(l) < min){
-                            nearMiss = l;
+                            nearMiss = l+count;
+                            min = distanceArray.get(l);
                         }
                     }
-                    min = distanceArray.get(l);
                 }
             }
             distanceArray.clear();
             calcWeights(samplesNorm.get(i),samplesNorm.get(nearHit),samplesNorm.get(nearMiss));
+            count++;
         }
         reliefOutput();
     }
@@ -501,9 +499,13 @@ public class BayesWorkflow extends JFrame {
             for(int j=0; j<testSamples.size()-1; j++){
                 probs[i][j] = (numberSampleInClass[i][j] * numberSampleInClass[i][j+1]) /
                         (Math.pow(numberInClass[i], numFeatures));
+                if(probs[i][j] == 0){
+                    probs[i][j] = .001;
+                }
                 //Because size is limited, allow the full number of probabilities per class to persist.
-                if(j == testSamples.size()){
+                if(j == testSamples.size()-1){
                     sampleProb[j] = probs[i][j+1];
+                    JOptionPane.showMessageDialog(null,"BARF");
                 }
                 else{
                     sampleProb[j] = probs[i][j];
@@ -514,15 +516,17 @@ public class BayesWorkflow extends JFrame {
     //Calculate probability of sample given class * class probability, then assign sample to class
     protected void totalProbabilities() {
         int[] counter = new int[className.size()];
+        double maxClass;
         for(int i=0; i<testSamples.size(); i++){
-//            System.out.println("\nSample " + i + " BEFORE assignment: " + testSamples.get(i).getClassType());
-            for(int j=0; j<className.size()-1; j++){
-                if((sampleProb[i] * classProb[j]) > (sampleProb[i] * classProb[j+1])){
+            maxClass = sampleProb[i] * classProb[0];
+            for(int j=0; j<className.size(); j++){
+                if((sampleProb[i] * classProb[j]) > maxClass){
                     testSamples.get(i).assignToClass(j);
+                    maxClass = (sampleProb[i] * classProb[j]);
                     counter[j]++;
                 }
             }
-//            System.out.println("\nSample " + i + " AFTER assignment: " + testSamples.get(i).getClassType());
+            System.out.println("Sample " + i + " new class: " + testSamples.get(i).getClassType());
         }
         //Display how many samples were assigned to each of the classes
         txtOutput.append("\n");
