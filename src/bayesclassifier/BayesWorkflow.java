@@ -68,8 +68,10 @@ public class BayesWorkflow extends JFrame {
     protected ArrayList<Double> distanceArray = new ArrayList<>();
     protected double euclidDist = 0;
     protected double finalDist = 0;
-    
-    
+    protected int nearHit = 0;
+    protected int nearMiss = 0;
+    protected double min = 0;  
+    protected int finalIndex = -1;
     
     protected double percentUsed = 0;
     
@@ -90,6 +92,9 @@ public class BayesWorkflow extends JFrame {
     protected int[] numberInClass;
     protected int[][] numberSampleInClass;
     
+    protected double[] weightsHit;  
+    protected double[] weightsMiss; 
+    protected double[] weightsTotal; 
     
     DecimalFormat dec = new DecimalFormat("0.000");
     
@@ -198,11 +203,11 @@ public class BayesWorkflow extends JFrame {
                 try{
                 txtOutput.append("\n\n----------------------------\nResults:\n----------------------------");
                 normalizeData();
+                calcRelief();
                 splitData();
                 classProbabilities();
                 sampleProbabilities();
                 totalProbabilities();
-                calcDistances();
                 
                 //Completed all processing
                 done = true;
@@ -338,20 +343,18 @@ public class BayesWorkflow extends JFrame {
         }
     }
     
-    //For Relief alg, select a random sample to begin
-    protected void chooseInitialSample(){
-        Random r = new Random();
-        initialSample = r.nextInt(numSamples); //sample index
-    }
-    
     //Calculate sample distances and store the nearest hit and miss for each round until done
     //use full data set for relief
     //d(p,q) = sqrt(pow(p1-q1, 2) + pow(p2-q2, 2) + pow(pi-qi, 2) + pow(pn-qn, 2))
-    protected void calcDistances(){
-        int count = 1;
+    protected void calcRelief(){
+        weightsHit = new double[numFeatures];
+        weightsMiss = new double[numFeatures];
+        weightsTotal = new double[numFeatures];
+        int index = 0;
         for(int i = 0; i < samplesNorm.size(); i++) {
             for(int j = i + 1; j < samplesNorm.size(); j++) {
-                for(int k = 0; k < samplesNorm.get(1).getFeatures().size(); k++) {
+                index = j;
+                for(int k = 0; k < numFeatures; k++) {
                     // Sample One SHOULD be each feature from the first sample as it loops through the features k
                     // Sample Two SHOULD be each feature from the second sample as it loops through the features k
                     double sampleOne = samplesNorm.get(i).getFeatures().get(k);
@@ -365,29 +368,63 @@ public class BayesWorkflow extends JFrame {
                 euclidDist = 0;
             }
             // find Min value in distancearray
-            double min = 0;
-            for(int l = 0; l < distanceArray.size(); l ++) {
-                if(l == 0){
+            //Calc nearHit or nearMiss
+            nearHit = 0;
+            nearMiss = 0;
+            min = 0;
+            for (int l = 0; l < distanceArray.size(); l++) {
+                if (l == 0) {
                     min = distanceArray.get(l);
-                } else {
-                    if (distanceArray.get(l) < min) {
-                        min = distanceArray.get(l);
+                }
+                for (int m = 0; m < className.size(); m++) {
+                    if (classes.get(l).equals(classes.get(m))) {
+                        if (distanceArray.get(l) < min){
+                            nearHit = l;
+                        }
                     }
+                    else{
+                        if (distanceArray.get(l) < min){
+                            nearMiss = l;
+                        }
+                    }
+                    min = distanceArray.get(l);
                 }
             }
-            
-            System.out.print(distanceArray + "distanceArray dist\n");
-            System.out.print(min + "minimum dist\n");
-            System.out.print(distanceArray.size() + "size of array\n");
             distanceArray.clear();
+            calcWeights(samplesNorm.get(i),samplesNorm.get(nearHit),samplesNorm.get(nearMiss));
         }
+        reliefOutput();
     }
     
     //Calculate weights for each samples features. At the end, output which feature is least weighted.
-    protected void calcWeights(){
-        
+    protected void calcWeights(BayesSample curr, BayesSample hit, BayesSample miss){
+        for(int p=0; p <weightsHit.length; p++){
+                for (int r = 0; r < numFeatures; r++) {
+                    weightsHit[p] -= Math.pow(curr.getFeatures().get(r) - hit.getFeatures().get(r), 2);
+                    weightsMiss[p] -= Math.pow(curr.getFeatures().get(r) - miss.getFeatures().get(r), 2);
+                }
+                weightsTotal[p] = weightsHit[p] + weightsMiss[p];
+        }
+        double weightMin = weightsTotal[0];
+        for(int q =0; q< weightsTotal.length; q++){
+            if(weightsTotal[q] < weightMin){
+                finalIndex = q;
+                weightMin = weightsTotal[q];
+            }
+        }
     }
     
+    //Only display relief output at end of function
+    protected void reliefOutput(){
+        if(finalIndex != -1){
+        txtOutput.append("\nThe Relief algorithm suggests you can disregard:");
+        txtOutput.append("\nFeature " + finalIndex + ".");
+        }
+        else{
+            txtOutput.append("\nThe Relief algorithm finds features to have the same weights.\n");
+        }
+    }
+
     /*
     Group project collaboration for BAYES:
     - Function to calculate probability of each sample and each class
@@ -479,8 +516,8 @@ public class BayesWorkflow extends JFrame {
         int[] counter = new int[className.size()];
         for(int i=0; i<testSamples.size(); i++){
 //            System.out.println("\nSample " + i + " BEFORE assignment: " + testSamples.get(i).getClassType());
-            for(int j=0; j<className.size(); j++){
-                if((sampleProb[i] * classProb[j]) < (sampleProb[i] * classProb[j])){
+            for(int j=0; j<className.size()-1; j++){
+                if((sampleProb[i] * classProb[j]) > (sampleProb[i] * classProb[j+1])){
                     testSamples.get(i).assignToClass(j);
                     counter[j]++;
                 }
