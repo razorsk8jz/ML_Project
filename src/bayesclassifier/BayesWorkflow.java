@@ -397,11 +397,9 @@ public class BayesWorkflow extends JFrame {
     //Calculate weights for each samples features. At the end, output which feature is least weighted.
     protected void calcWeights(BayesSample curr, BayesSample hit, BayesSample miss){
         for(int p=0; p <weightsHit.length; p++){
-                for (int r = 0; r < numFeatures; r++) {
-                    weightsHit[p] -= Math.pow(curr.getFeatures().get(r) - hit.getFeatures().get(r), 2);
-                    weightsMiss[p] -= Math.pow(curr.getFeatures().get(r) - miss.getFeatures().get(r), 2);
-                }
-                weightsTotal[p] = weightsHit[p] + weightsMiss[p];
+            weightsHit[p] = Math.pow(curr.getFeatures().get(p) - hit.getFeatures().get(p), 2);
+            weightsMiss[p] = Math.pow(curr.getFeatures().get(p) - miss.getFeatures().get(p), 2);
+            weightsTotal[p] = weightsHit[p] + weightsMiss[p];
         }
         double weightMin = weightsTotal[0];
         for(int q =0; q< weightsTotal.length; q++){
@@ -416,7 +414,7 @@ public class BayesWorkflow extends JFrame {
     protected void reliefOutput(){
         if(finalIndex != -1){
         txtOutput.append("\nThe Relief algorithm suggests you can disregard:");
-        txtOutput.append("\nFeature " + finalIndex + ".");
+        txtOutput.append("\nFeature " + finalIndex + ".\n");
         }
         else{
             txtOutput.append("\nThe Relief algorithm finds features to have the same weights.\n");
@@ -526,7 +524,7 @@ public class BayesWorkflow extends JFrame {
                     counter[j]++;
                 }
             }
-            System.out.println("Sample " + i + " new class: " + testSamples.get(i).getClassType());
+//            System.out.println("Sample " + i + " new class: " + testSamples.get(i).getClassType());
         }
         //Display how many samples were assigned to each of the classes
         txtOutput.append("\n");
