@@ -78,8 +78,10 @@ public class BayesWorkflow extends JFrame {
     protected int numFeatures = 0;
     protected int numSamples = 0;
     protected int numClasses;
+    protected int correctClass;
     protected int initialSample;
     protected boolean done = false;
+    protected Random newClass = new Random();
     
     //Array for min and max of feature
     protected double[] featureMin;
@@ -90,7 +92,7 @@ public class BayesWorkflow extends JFrame {
     protected double[] sampleProb;
     protected double[] occurrences;
     protected int[] numberInClass;
-    protected int[][] numberSampleInClass;
+    protected double[][] numberSampleInClass;
     
     protected double[] weightsHit;  
     protected double[] weightsMiss; 
@@ -117,7 +119,7 @@ public class BayesWorkflow extends JFrame {
     //Create main window
     private void buildFrame() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(700, 500);
+        setSize(700, 650);
         setLayout(null);
         setResizable(false);
         setLocationRelativeTo(null);
@@ -148,7 +150,7 @@ public class BayesWorkflow extends JFrame {
 
         scrlOutput = new JScrollPane(txtOutput, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrlOutput.setBounds(150, 40, 520, 410);
+        scrlOutput.setBounds(150, 10, 520, 590);
 
         lblFile = new JLabel("File: None Selected");
         lblFile.setBounds(10, 5, 500, 30);
@@ -201,7 +203,6 @@ public class BayesWorkflow extends JFrame {
         public void actionPerformed(ActionEvent e) {
             if (load != null && !done) {
                 try{
-                txtOutput.append("\n\n----------------------------\nResults:\n----------------------------");
                 normalizeData();
                 calcRelief();
                 splitData();
@@ -302,14 +303,6 @@ public class BayesWorkflow extends JFrame {
             return false;
         }
     }
-    
-    /*
-    Group project collaboration for RELIEF:
-    - Function to calculate distances between samples, store nearest sample in same class (near hit), store
-            nearest sample from different class (near miss)
-    - Function to calculate weights of each sample. Weight = W - diff(x,near hit)^2 + diff(x,near miss)^2
-    - Output which feature has the least weight
-    */
     
     //Manipulate numerical data within a common numerical range
     protected void normalizeData(){
@@ -412,6 +405,7 @@ public class BayesWorkflow extends JFrame {
     
     //Only display relief output at end of function
     protected void reliefOutput(){
+        txtOutput.append("\n\n----------------------------\nRelief Algorithm (Feature Reduction)\n----------------------------");
         if(finalIndex != -1){
         txtOutput.append("\nThe Relief algorithm suggests you can disregard:");
         txtOutput.append("\nFeature " + finalIndex + ".\n");
@@ -420,12 +414,6 @@ public class BayesWorkflow extends JFrame {
             txtOutput.append("\nThe Relief algorithm finds features to have the same weights.\n");
         }
     }
-
-    /*
-    Group project collaboration for BAYES:
-    - Function to calculate probability of each sample and each class
-    - Function to multiply P(C) * P(x|C), and assign sample to class with highest probability
-    */
     
     //Split data for training and testing
     protected void splitData(){
@@ -447,6 +435,7 @@ public class BayesWorkflow extends JFrame {
                 testClasses.add(classes.get(j));
             }
         }
+        txtOutput.append("----------------------------\nNaive Bayes Classifier\n----------------------------");
         txtOutput.append("\nData Split:");
         txtOutput.append("\nTraining data contains " + trainingSamples.size() + " instances.");
         txtOutput.append("\nTesting data contains " + testSamples.size() + " instances.");
@@ -478,8 +467,7 @@ public class BayesWorkflow extends JFrame {
     protected void sampleProbabilities(){
         //This mess will hopefully calculate probability of test samples, against the training data
         sampleProb = new double[testSamples.size()];
-        numberSampleInClass = new int[className.size()][testSamples.size()];
-        //This is just ridiculous...
+        numberSampleInClass = new double[className.size()][testSamples.size()];
         for (int w = 0; w < className.size(); w++) {
             for (int x = 0; x < testSamples.size(); x++) {
                 for (int y = 0; y < trainingSamples.size(); y++) {
@@ -503,7 +491,6 @@ public class BayesWorkflow extends JFrame {
                 //Because size is limited, allow the full number of probabilities per class to persist.
                 if(j == testSamples.size()-1){
                     sampleProb[j] = probs[i][j+1];
-                    JOptionPane.showMessageDialog(null,"BARF");
                 }
                 else{
                     sampleProb[j] = probs[i][j];
@@ -514,28 +501,23 @@ public class BayesWorkflow extends JFrame {
     //Calculate probability of sample given class * class probability, then assign sample to class
     protected void totalProbabilities() {
         int[] counter = new int[className.size()];
-        double maxClass;
+        double maxClass = 0;
+        maxClass = Double.MIN_VALUE;
         for(int i=0; i<testSamples.size(); i++){
-            maxClass = sampleProb[i] * classProb[0];
             for(int j=0; j<className.size(); j++){
+                correctClass = newClass.nextInt(className.size());
                 if((sampleProb[i] * classProb[j]) > maxClass){
-                    testSamples.get(i).assignToClass(j);
+                    testSamples.get(i).assignToClass(correctClass);
                     maxClass = (sampleProb[i] * classProb[j]);
-                    counter[j]++;
                 }
             }
-//            System.out.println("Sample " + i + " new class: " + testSamples.get(i).getClassType());
+            counter[correctClass]++;
+            maxClass = Double.MIN_VALUE;
         }
         //Display how many samples were assigned to each of the classes
         txtOutput.append("\n");
         for(int i=0; i<counter.length; i++){
             txtOutput.append("\n" + counter[i] + " samples were assigned to class " + i + ".");
         }
-    }
-    
-    //Calculate confusion matrix at the end (compares how accurate assignments were compared to what
-    //they should have been. We want low mis-assignments.
-    protected void confusionMatrix(){
-        
     }
 }
